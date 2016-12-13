@@ -5,8 +5,13 @@ test:
   pre:
     - NODE_ENV=test make client/config/index.js:
         parallel: true
-    - case $CIRCLE_NODE_INDEX in 0) NODE_ENV=test make build-server ;; esac:
-        parallel: true
+    - ? |
+          # make the build-server and i18n string data in parallel
+          if [[ "$CIRCLE_NODE_INDEX" == 0 ]]; then NODE_ENV=test make build-server; fi
+          if [[ "$CIRCLE_NODE_INDEX" == 1 ]] || [[ "$CIRCLE_NODE_TOTAL" == 1 ]]; then
+            bash bin/generate-new-strings-comparison $CIRCLE_BRANCH $CIRCLE_SHA $CIRCLE_ARTIFACTS/translate
+          fi
+      : parallel: true
   override:
     - bin/run-lint :
         parallel: true
@@ -23,18 +28,6 @@ test:
         parallel: true
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/ && find . -type f -regex  "./test-results.*\.xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;:
-        parallel: true
-    - ? |
-          if [[ $CIRCLE_NODE_INDEX == 0 ]]; then
-            make translate;
-            mkdir -p $CIRCLE_ARTIFACTS/translate;
-            cp calypso-strings.pot $CIRCLE_ARTIFACTS/translate/calypso-strings.pot;
-            if [[ $CIRCLE_BRANCH != "master" ]]; then
-              node bin/get-circle-string-artifact-url | xargs curl > $CIRCLE_ARTIFACTS/translate/calypso-strings-master.pot;
-              msgcat -u $CIRCLE_ARTIFACTS/translate/calypso-strings.pot $CIRCLE_ARTIFACTS/translate/calypso-strings-master.pot > $CIRCLE_ARTIFACTS/translate/localci-new-strings.pot;
-            fi;
-          fi;
-      :
         parallel: true
 notify:
   webhooks:

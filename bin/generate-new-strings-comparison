@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+if [[ "$1" ]]; then
+	BRANCH=$1
+else
+	BRANCH=$(git rev-parse --abbrev-ref HEAD)
+fi
+
+if [[ "${#2}" -eq 40 ]]; then
+	SHA=$2
+fi
+
+if [[ "$3" ]]; then
+	OUTPUT_DIR=$3
+fi
+
+# bail if we don't have good branch information
+if [[ "$BRANCH" == "master" ]]; then
+	exit 0
+elif [[ "$BRANCH" == "HEAD" ]]; then
+	exit 1
+fi
+
+# generate the branch pot and the master pot, circa branch fork point
+make translate
+mv calypso-strings.pot calypso-strings-branch.pot
+git merge-base --fork-point master | xargs git checkout;
+make translate
+mv calypso-strings.pot calypso-strings-master.pot
+
+# make a dupe of the master pot so msgcat -u will not include uniques left in master
+# we don't want unique entries left in master as they represent strings being dropped
+cp calypso-strings-master.pot calypso-strings-master-copy.pot
+
+msgcat -u calpyso-strings-*.pot > localci-new-strings.pot;
+rm calypso-strings-master-copy.pot;
+
+if [[ "$OUTPUT_DIR" ]]; then
+	mkdir -p $OUTPUT_DIR
+	mv calypso-strings-*.pot localci-*.pot $OUTPUT_DIR
+fi
+
+# restore to original, favor a sha if given to us
+if [[ "${#SHA}" -eq 40 ]]; then
+	git checkout $SHA
+else
+	git checkout $BRANCH
+fi
