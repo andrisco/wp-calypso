@@ -39,8 +39,9 @@ const isDeleting = createReducer( {}, {
 	[ ACCOUNT_RECOVERY_SETTINGS_DELETE_FAILED ]: setTargetState( false ),
 } );
 
-const hasResentValidation = createReducer( {}, {
+const hasSentValidation = createReducer( {}, {
 	[ ACCOUNT_RECOVERY_SETTINGS_RESEND_VALIDATION ]: setTargetState( true ),
+	[ ACCOUNT_RECOVERY_SETTINGS_UPDATE_SUCCESS ]: setTargetState( true ),
 } );
 
 const convertPhoneResponse = ( phoneResponse ) => {
@@ -127,5 +128,5 @@ export default combineReducers( {
 	data,
 	isUpdating,
 	isDeleting,
-	hasResentValidation,
+	hasSentValidation,
 } );
