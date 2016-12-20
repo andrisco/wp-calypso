@@ -10,6 +10,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import QuerySites from 'components/data/query-sites';
 import { getSite, getSiteIconUrl } from 'state/sites/selectors';
 import resizeImageUrl from 'lib/resize-image-url';
 import Gridicon from 'components/gridicon';
@@ -46,18 +47,18 @@ const SiteIcon = React.createClass( {
 	},
 
 	render() {
-		var iconSrc, iconClasses, style;
+		const { site, siteId } = this.props;
 
 		// Set the site icon path if it's available
-		iconSrc = this.getIconSrcUrl();
+		const iconSrc = this.getIconSrcUrl();
 
-		iconClasses = classNames( {
+		const iconClasses = classNames( {
 			'site-icon': true,
 			'is-blank': ! iconSrc
 		} );
 
 		// Size inline styles
-		style = {
+		const style = {
 			height: this.props.size,
 			width: this.props.size,
 			lineHeight: this.props.size + 'px',
@@ -66,6 +67,7 @@ const SiteIcon = React.createClass( {
 
 		return (
 			<div className={ iconClasses } style={ style }>
+				{ ! site && siteId > 0 && <QuerySites siteId={ siteId } /> }
 				{ iconSrc
 					? <img className="site-icon__img" src={ iconSrc } />
 					: <Gridicon icon="globe" size={ Math.round( this.props.size / 1.3 ) } />
