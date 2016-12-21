@@ -198,18 +198,17 @@ $date-picker_nav_button_size: 20px;
 
 // Modifiers
 
-.DayPicker-Day--today {
-	&::before {
-		content: '';
-		box-sizing: border-box;
-		width: 24px;
-		height: 24px;
-		position: absolute;
-			left: 50%;
-			top: 50%;
-		margin: -12px 0 0 -12px;
-		border: solid 1px $orange-jazzy;
-		border-radius: 50%;
+.DayPicker-Day--today .date-picker__day:not(.is-selected) {
+	color: $white;
+
+	.date-picker__day-selected {
+		background-color: $gray;
+		opacity: 1;
+		transform: scale( 1 );
+	}
+
+	&:hover .date-picker__day-selected {
+		background-color: lighten( $gray, 10% );
 	}
 }
 
